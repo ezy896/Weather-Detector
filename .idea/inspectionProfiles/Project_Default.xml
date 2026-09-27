@@ -1,0 +1,36 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="alpaca-py" />
+          <option value="diskcache" />
+          <option value="joblib" />
+          <option value="jupyter" />
+          <option value="matplotlib" />
+          <option value="mypy" />
+          <option value="myst-parser" />
+          <option value="nbsphinx" />
+          <option value="numba" />
+          <option value="numpy" />
+          <option value="optuna" />
+          <option value="pandas" />
+          <option value="progressbar2" />
+          <option value="pytest" />
+          <option value="pytest-cov" />
+          <option value="pytest-instafail" />
+          <option value="pytest-randomly" />
+          <option value="pytest-xdist" />
+          <option value="ruff" />
+          <option value="scikit-learn" />
+          <option value="Sphinx" />
+          <option value="sphinx_rtd_theme" />
+          <option value="sphinx-intl" />
+          <option value="yahooquery" />
+          <option value="yfinance" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

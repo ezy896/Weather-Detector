@@ -1,0 +1,1 @@
+["month", "day_of_year", "season", "precipitation_sum_lag1", "precipitation_sum_lag2", "precipitation_sum_lag3", "precipitation_sum_lag7", "precipitation_sum_roll_mean3", "precipitation_sum_roll_mean7", "precipitation_sum_roll_mean14", "windspeed_10m_max", "relative_humidity_2m_mean", "temperature_2m_mean_lag1"]

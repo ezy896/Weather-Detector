@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeCast — Pakistan's Coolest Weather Companion</title>
+    <!-- Modern Friendly Fonts & Lucide Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-heading: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
+            --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Aesthetic Warm Light Mode (Default) - Non-techy, cozy, lifestyle */
+        [data-theme="light"] {
+            --bg-canvas: #FBF9F5;
+            --bg-card: #FFFFFF;
+            --bg-card-subtle: #F5EFEB;
+            --bg-card-hover: #EFE8E2;
+            --border-soft: #EDE4DC;
+            --border-hover: #D8CCC0;
+            --border-active: #FF6B4A;
+            --text-heading: #231F1C;
+            --text-body: #59514A;
+            --text-subtle: #968B80;
+            --accent-main: #FF6B4A;
+            --accent-gradient: linear-gradient(135deg, #FF6B4A 0%, #FFA07A 50%, #F59E0B 100%);
+            --accent-terracotta: #E2583E;
+            --accent-warm-gold: #F59E0B;
+            --accent-rain: #3B9BBF;
+            --accent-matcha: #43A047;
+            --shadow-card: 0 12px 34px -8px rgba(70, 50, 40, 0.08), 0 2px 8px rgba(70, 50, 40, 0.03);
+            --shadow-pop: 0 16px 40px -10px rgba(255, 107, 74, 0.25);
+            --glass-card: rgba(255, 255, 255, 0.88);
+            --canvas-opacity: 0.45;
+        }
+
+        /* Aesthetic Cozy Dark Mode - Warm Espresso & Cocoa (Not Cold Cyber Blue) */
+        [data-theme="dark"] {
+            --bg-canvas: #161412;
+            --bg-card: #201D1A;
+            --bg-card-subtle: #2A2622;
+            --bg-card-hover: #35302B;
+            --border-soft: rgba(255, 240, 225, 0.09);
+            --border-hover: rgba(255, 240, 225, 0.2);
+            --border-active: #FF7D5F;
+            --text-heading: #FDFBF7;
+            --text-body: #BDB4AA;
+            --text-subtle: #82786E;
+            --accent-main: #FF7D5F;
+            --accent-gradient: linear-gradient(135deg, #FF7D5F 0%, #F59E0B 100%);
+            --accent-terracotta: #FF7D5F;
+            --accent-warm-gold: #FBBF24;
+            --accent-rain: #56B4D3;
+            --accent-matcha: #52C465;
+            --shadow-card: 0 16px 40px -10px rgba(0, 0, 0, 0.5);
+            --shadow-pop: 0 16px 40px -10px rgba(255, 125, 95, 0.28);
+            --glass-card: rgba(32, 29, 26, 0.85);
+            --canvas-opacity: 0.55;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-canvas);
+            color: var(--text-heading);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Ambient Motion Background Canvas */
+        #weatherCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: var(--canvas-opacity);
+            transition: opacity 0.5s ease;
+        }
+
+        /* Warm Sun / Glow Aura */
+        .warm-ambient-aura {
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 850px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(255, 107, 74, 0.15) 0%, rgba(245, 158, 11, 0.08) 50%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            filter: blur(90px);
+            transition: all 0.6s ease;
+        }
+
+        /* Layout Container */
+        .app-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1020px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Brand Navigation */
+        .top-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-soft);
+            margin-bottom: 32px;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 14px rgba(255, 107, 74, 0.35);
+            transition: transform 0.25s var(--ease-spring);
+        }
+
+        .brand-badge:hover .brand-icon-wrapper {
+            transform: scale(1.08) rotate(-4deg);
+        }
+
+        .brand-info h1 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-tagline {
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: rgba(255, 107, 74, 0.12);
+            color: var(--accent-main);
+            padding: 2px 8px;
+            border-radius: 999px;
+            letter-spacing: 0.02em;
+        }
+
+        .brand-info p {
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+            margin-top: 1px;
+        }
+
+        .nav-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .unit-pill-selector {
+            display: inline-flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 3px;
+        }
+
+        .unit-pill-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-subtle);
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 6px 11px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .unit-pill-btn.active {
+            background: var(--accent-main);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(255, 107, 74, 0.3);
+        }
+
+        .btn-theme-switch {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            color: var(--text-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-spring);
+        }
+
+        .btn-theme-switch:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+            color: var(--text-heading);
+        }
+
+        /* Page View Switcher */
+        .page-panel {
+            display: none;
+            flex-direction: column;
+            gap: 32px;
+            animation: fadeInScreen 0.35s var(--ease-spring);
+        }
+
+        .page-panel.active {
+            display: flex;
+        }
+
+        @keyframes fadeInScreen {
+            from { opacity: 0; transform: translateY(14px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ================= PAGE 1: GREETING & CITY EXPLORER ================= */
+        .landing-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 10px 0 50px;
+            max-width: 780px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Cool Streetwear Character: "Kai" */
+        .character-stage {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 0 auto 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.3s var(--ease-bounce);
+        }
+
+        .character-stage:hover {
+            transform: scale(1.06);
+        }
+
+        .character-stage:active {
+            transform: scale(0.96);
+        }
+
+        .kai-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 14px 24px rgba(70, 50, 40, 0.16));
+            animation: kai-bop 3.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes kai-bop {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1.5deg); }
+            100% { transform: translateY(2px) rotate(-1deg); }
+        }
+
+        .kai-headphone-pulse {
+            animation: pulse-ring 2s infinite ease-in-out;
+            transform-origin: center;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .kai-arm-wave {
+            transform-origin: 175px 150px;
+            animation: arm-peace 3s ease-in-out infinite;
+        }
+
+        @keyframes arm-peace {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-14deg); }
+        }
+
+        /* Speech Bubble */
+        .kai-speech-bubble {
+            background: var(--bg-card);
+            border: 2px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 16px 26px;
+            box-shadow: var(--shadow-card);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            margin-bottom: 24px;
+            max-width: 600px;
+            animation: popSpeech 0.4s var(--ease-bounce);
+        }
+
+        .kai-speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 10px 11px 10px;
+            border-style: solid;
+            border-color: transparent transparent var(--border-soft) transparent;
+        }
+
+        .kai-speech-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+        }
+
+        @keyframes popSpeech {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .landing-title {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.12;
+            margin-bottom: 14px;
+        }
+
+        .landing-title span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .landing-desc {
+            font-size: 1.1rem;
+            color: var(--text-body);
+            margin-bottom: 32px;
+            max-width: 560px;
+            line-height: 1.55;
+        }
+
+        /* Search Card on Landing */
+        .landing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: var(--shadow-card);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            text-align: left;
+        }
+
+        .search-group-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-icon {
+            position: absolute;
+            left: 18px;
+            color: var(--text-subtle);
+            pointer-events: none;
+        }
+
+        .city-search-input {
+            width: 100%;
+            padding: 18px 90px 18px 52px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-soft);
+            border-radius: 18px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            color: var(--text-heading);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .city-search-input:focus {
+            background: var(--bg-card);
+            border-color: var(--border-active);
+            box-shadow: 0 0 0 4px rgba(255, 107, 74, 0.15);
+        }
+
+        .btn-locate-gps {
+            position: absolute;
+            right: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            color: var(--text-body);
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-locate-gps:hover {
+            color: var(--accent-main);
+            border-color: var(--accent-main);
+        }
+
+        .btn-check-vibe {
+            width: 100%;
+            padding: 18px 24px;
+            border-radius: 18px;
+            background: var(--accent-gradient);
+            color: #FFFFFF;
+            border: none;
+            font-size: 1.15rem;
+            font-weight: 800;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            box-shadow: var(--shadow-pop);
+            transition: all 0.25s var(--ease-spring);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-check-vibe:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 18px 44px -8px rgba(255, 107, 74, 0.4);
+        }
+
+        .btn-check-vibe:active {
+            transform: scale(0.98);
+        }
+
+        /* Trending Cities Grid */
+        .cities-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+        }
+
+        .city-tile {
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-soft);
+            border-radius: 16px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.22s var(--ease-spring);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .city-tile:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+            border-color: var(--border-hover);
+            box-shadow: 0 8px 20px -4px rgba(70, 50, 40, 0.1);
+        }
+
+        .city-tile.selected {
+            background: rgba(255, 107, 74, 0.08);
+            border-color: var(--accent-main);
+            box-shadow: 0 0 0 2px var(--accent-main);
+        }
+
+        .city-tile-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .city-tile-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--text-heading);
+            font-family: var(--font-heading);
+        }
+
+        .city-tile-emoji {
+            font-size: 1.2rem;
+        }
+
+        .city-tile-vibe {
+            font-size: 0.78rem;
+            color: var(--text-subtle);
+            font-weight: 500;
+        }
+
+        /* ================= PAGE 2: WEATHER DASHBOARD ================= */
+        .dashboard-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn-switch-city {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            color: var(--text-body);
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-spring);
+        }
+
+        .btn-switch-city:hover {
+            background: var(--bg-card-subtle);
+            color: var(--text-heading);
+            transform: translateX(-3px);
+            border-color: var(--border-hover);
+        }
+
+        .selected-city-title {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .city-model-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-soft);
+            border-radius: 999px;
+            color: var(--text-subtle);
+            font-family: var(--font-body);
+        }
+
+        .day-horizon-toggle {
+            display: inline-flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 14px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .horizon-chip {
+            border: none;
+            background: transparent;
+            color: var(--text-body);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-family: inherit;
+        }
+
+        .horizon-chip.active {
+            background: var(--accent-main);
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(255, 107, 74, 0.3);
+        }
+
+        /* Companion Bar: Kai's Daily Take */
+        .kai-companion-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .companion-kai-mini {
+            width: 65px;
+            height: 65px;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s var(--ease-bounce);
+        }
+
+        .companion-kai-mini:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .companion-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .companion-badge-tag {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .companion-quote-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            line-height: 1.4;
+        }
+
+        /* Hero Day Card */
+        .hero-forecast-display {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 28px;
+            padding: 36px;
+            box-shadow: var(--shadow-card);
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 32px;
+            align-items: center;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .hero-forecast-display {
+                grid-template-columns: 1fr;
+                padding: 24px;
+                gap: 24px;
+            }
+        }
+
+        .hero-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .hero-date-tag {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-vibe-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(255, 107, 74, 0.1);
+            color: var(--accent-main);
+            border: 1px solid rgba(255, 107, 74, 0.25);
+            width: fit-content;
+        }
+
+        .hero-temp-group {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .hero-temp-large {
+            font-family: var(--font-heading);
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--text-heading);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hero-temp-deg-symbol {
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: var(--text-subtle);
+        }
+
+        .hero-summary-copy {
+            font-size: 1.05rem;
+            color: var(--text-body);
+            line-height: 1.55;
+            max-width: 460px;
+        }
+
+        /* Right Side: Lifestyle Fit & Mood Metrics */
+        .hero-lifestyle-box {
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .hero-weather-icon-stage {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lifestyle-metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .metric-tile {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-tile-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .metric-tile-val {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            font-family: var(--font-heading);
+        }
+
+        /* Forecast Trend Curve */
+        .trend-chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 26px;
+            padding: 24px 28px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .trend-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .trend-chart-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trend-legends {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-subtle);
+        }
+
+        .legend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-bullet-terracotta {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-main);
+        }
+
+        .legend-bullet-blue {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-rain);
+        }
+
+        .svg-canvas-wrapper {
+            width: 100%;
+            height: 130px;
+        }
+
+        #forecastSvgChart {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* Day Cards Grid */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 16px;
+        }
+
+        .day-forecast-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            padding: 20px 18px;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: all 0.25s var(--ease-spring);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: cardDrop 0.4s var(--ease-spring) backwards;
+        }
+
+        @keyframes cardDrop {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .day-forecast-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--border-hover);
+            box-shadow: 0 16px 36px -8px rgba(70, 50, 40, 0.14);
+        }
+
+        .day-forecast-card.active {
+            border-color: var(--accent-main);
+            box-shadow: 0 0 0 2px var(--accent-main), var(--shadow-pop);
+            background: rgba(255, 107, 74, 0.04);
+        }
+
+        .card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-day-title {
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .card-day-date {
+            font-size: 0.78rem;
+            color: var(--text-subtle);
+        }
+
+        .card-icon-container {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-temp-big {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .card-rain-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-rain);
+            background: rgba(59, 155, 191, 0.1);
+            padding: 4px 10px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        /* Error Alert */
+        .toast-error-banner {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #DC2626;
+            padding: 16px 20px;
+            border-radius: 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .btn-demo-fallback {
+            background: #DC2626;
+            color: #FFFFFF;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .site-footer {
+            margin-top: auto;
+            padding-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: var(--text-subtle);
+            border-top: 1px solid var(--border-soft);
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Weather Particles Canvas -->
+    <canvas id="weatherCanvas"></canvas>
+
+    <!-- Warm Glowing Sun Aura -->
+    <div class="warm-ambient-aura" id="warmAura"></div>
+
+    <div class="app-container">
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+            <div class="brand-badge" onclick="navigateTo(1)" title="Go Home">
+                <div class="brand-icon-wrapper">
+                    <span>☀️</span>
+                </div>
+                <div class="brand-info">
+                    <h1>VibeCast <span class="badge-tagline">Pakistan</span></h1>
+                    <p>Relatable weather & daily vibe checks</p>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <div class="unit-pill-selector">
+                    <button class="unit-pill-btn active" id="pillC" onclick="changeUnit('C')">°C</button>
+                    <button class="unit-pill-btn" id="pillF" onclick="changeUnit('F')">°F</button>
+                </div>
+
+                <button class="btn-theme-switch" onclick="toggleAppTheme()" title="Switch Light/Dark Mood">
+                    <i data-lucide="moon" id="themeMoodIcon" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- ================= PAGE 1: GREETING & CITY EXPLORER ================= -->
+        <main class="page-panel active" id="viewLanding">
+            <section class="landing-hero">
+                <!-- Cool Streetwear Character: "Kai" -->
+                <div class="character-stage" onclick="interactKai()" title="Tap Kai!">
+                    <svg class="kai-svg" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Kai's Head & Face -->
+                        <circle cx="120" cy="115" r="50" fill="#F8D3B4"/>
+
+                        <!-- Layered Streetwear Hair -->
+                        <path d="M72 105C68 85 78 58 100 50C112 45 136 45 152 56C168 68 174 88 170 110C164 100 156 86 142 84C128 82 120 90 108 84C98 78 88 92 72 105Z" fill="#292524"/>
+                        <path d="M110 50C125 40 148 44 158 54C148 55 138 60 130 68C122 62 118 55 110 50Z" fill="#44403C"/>
+
+                        <!-- Over-ear Studio Headphones -->
+                        <path d="M68 115C68 85 90 62 120 62C150 62 172 85 172 115" stroke="#FF6B4A" stroke-width="7" stroke-linecap="round"/>
+                        <!-- Left Ear Cup -->
+                        <rect x="62" y="98" width="16" height="34" rx="8" fill="#1C1917" stroke="#FF6B4A" stroke-width="2.5"/>
+                        <circle class="kai-headphone-pulse" cx="70" cy="115" r="4" fill="#FF6B4A"/>
+                        <!-- Right Ear Cup -->
+                        <rect x="162" y="98" width="16" height="34" rx="8" fill="#1C1917" stroke="#FF6B4A" stroke-width="2.5"/>
+                        <circle class="kai-headphone-pulse" cx="170" cy="115" r="4" fill="#FF6B4A"/>
+
+                        <!-- Cool Street Sunglasses pushed slightly down -->
+                        <g id="kaiShades">
+                            <!-- Left Frame -->
+                            <rect x="86" y="104" width="28" height="18" rx="6" fill="#1C1917"/>
+                            <!-- Right Frame -->
+                            <rect x="126" y="104" width="28" height="18" rx="6" fill="#1C1917"/>
+                            <!-- Bridge -->
+                            <line x1="114" y1="112" x2="126" y2="112" stroke="#1C1917" stroke-width="3"/>
+                            <!-- Amber / Sunset Lens Glare -->
+                            <line x1="90" y1="108" x2="102" y2="118" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="130" y1="108" x2="142" y2="118" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+
+                        <!-- Playful Winking Eyes behind/above sunglasses -->
+                        <!-- Left Eye (Wink) -->
+                        <path d="M92 98C96 95 104 95 108 98" stroke="#292524" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Right Eye (Open, cool glance) -->
+                        <ellipse cx="140" cy="98" rx="3.5" ry="4" fill="#292524"/>
+
+                        <!-- Chill Smirk -->
+                        <path d="M115 134C122 138 132 136 136 130" stroke="#292524" stroke-width="2.5" stroke-linecap="round"/>
+
+                        <!-- Subtle Cheerful Cheeks -->
+                        <ellipse cx="88" cy="126" rx="6" ry="3" fill="#F43F5E" fill-opacity="0.25"/>
+                        <ellipse cx="152" cy="126" rx="6" ry="3" fill="#F43F5E" fill-opacity="0.25"/>
+
+                        <!-- Oversized Streetwear Hoodie -->
+                        <path d="M60 190C60 160 85 145 120 145C155 145 180 160 180 190V225H60V190Z" fill="#FF6B4A"/>
+                        <!-- Inner T-shirt Collar -->
+                        <path d="M102 148C108 160 132 160 138 148" fill="#F5EFEB"/>
+                        <!-- White Drawstrings -->
+                        <line x1="106" y1="156" x2="104" y2="190" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="134" y1="156" x2="136" y2="190" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+                        <!-- Kai Waving Peace Sign Arm -->
+                        <g class="kai-arm-wave">
+                            <rect x="175" y="155" width="30" height="18" rx="9" fill="#FF6B4A"/>
+                            <!-- Hand with Peace Sign ✌️ -->
+                            <circle cx="205" cy="155" r="10" fill="#F8D3B4"/>
+                            <rect x="202" y="136" width="5" height="16" rx="2.5" fill="#F8D3B4"/>
+                            <rect x="210" y="139" width="5" height="15" rx="2.5" fill="#F8D3B4"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Speech Bubble -->
+                <div class="kai-speech-bubble" id="kaiBubble">
+                    <span style="font-size: 1.3rem;">✌️</span>
+                    <span class="kai-speech-text" id="kaiSpeech">Yo! I'm Kai. Which city in Pakistan are we checking today?</span>
+                </div>
+
+                <h2 class="landing-title">Find your city's <span>daily weather vibe.</span></h2>
+                <p class="landing-desc">From Lahore's golden evenings to Islamabad's misty hills — pick a city for relatable forecasts, fit checks, and live weather telemetry.</p>
+
+                <!-- City Search Card -->
+                <div class="landing-card">
+                    <div class="search-group-wrap">
+                        <i data-lucide="search" class="search-input-icon" style="width: 20px; height: 20px;"></i>
+                        <input type="text" id="landingCityInput" class="city-search-input" placeholder="Type any Pakistani city (e.g. Lahore, Karachi, Islamabad)..." autocomplete="off" />
+                        <button class="btn-locate-gps" onclick="useCurrentGpsLocation()">
+                            <i data-lucide="crosshair" style="width: 14px; height: 14px;"></i>
+                            <span>Locate</span>
+                        </button>
+                    </div>
+
+                    <button class="btn-check-vibe" onclick="handleCitySelect()">
+                        <span>Check The Weather</span>
+                        <i data-lucide="arrow-right" style="width: 20px; height: 20px;"></i>
+                    </button>
+
+                    <!-- Popular Cities Grid -->
+                    <div class="cities-section-header">
+                        <span>✨ Popular Pakistani Cities</span>
+                        <span>1-Tap Select</span>
+                    </div>
+
+                    <div class="cities-grid" id="popularCitiesGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ================= PAGE 2: WEATHER DASHBOARD ================= -->
+        <main class="page-panel" id="viewDashboard">
+            <!-- Navigation Back Bar -->
+            <div class="dashboard-nav">
+                <button class="btn-switch-city" onclick="navigateTo(1)">
+                    <i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i>
+                    <span>Pick another city</span>
+                </button>
+
+                <div class="selected-city-title">
+                    <span id="activeCityTitle">Islamabad</span>
+                    <span class="city-model-pill" id="activeCityModelBadge">Verified Regional Data</span>
+                </div>
+
+                <div class="day-horizon-toggle">
+                    <button class="horizon-chip" data-days="1" onclick="setForecastHorizon(1)">Tomorrow</button>
+                    <button class="horizon-chip" data-days="3" onclick="setForecastHorizon(3)">3 Days</button>
+                    <button class="horizon-chip active" data-days="5" onclick="setForecastHorizon(5)">5 Days</button>
+                </div>
+            </div>
+
+            <!-- Kai's Relatable Weather Commentary -->
+            <div class="kai-companion-card">
+                <div class="companion-kai-mini" onclick="interactKai()">
+                    <svg viewBox="0 0 240 240" fill="none" style="width: 100%; height: 100%;">
+                        <circle cx="120" cy="115" r="50" fill="#F8D3B4"/>
+                        <path d="M72 105C68 85 78 58 100 50C112 45 136 45 152 56C168 68 174 88 170 110C164 100 156 86 142 84C128 82 120 90 108 84C98 78 88 92 72 105Z" fill="#292524"/>
+                        <path d="M68 115C68 85 90 62 120 62C150 62 172 85 172 115" stroke="#FF6B4A" stroke-width="8"/>
+                        <rect x="86" y="104" width="28" height="18" rx="6" fill="#1C1917"/>
+                        <rect x="126" y="104" width="28" height="18" rx="6" fill="#1C1917"/>
+                        <line x1="114" y1="112" x2="126" y2="112" stroke="#1C1917" stroke-width="4"/>
+                        <path d="M115 134C122 138 132 136 136 130" stroke="#292524" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M60 190C60 160 85 145 120 145C155 145 180 160 180 190V225H60V190Z" fill="#FF6B4A"/>
+                    </svg>
+                </div>
+                <div class="companion-content">
+                    <div class="companion-badge-tag">
+                        <i data-lucide="message-circle" style="width: 13px; height: 13px;"></i>
+                        <span>Kai's Daily Take</span>
+                    </div>
+                    <div class="companion-quote-text" id="companionTakeText">
+                        "Pleasant evening weather ahead! Great time for a walk or outdoor tea."
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="toast-error-banner" id="errorToast">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
+                    <span id="errorToastText">Service is temporarily unavailable.</span>
+                </div>
+                <button class="btn-demo-fallback" onclick="loadForecast(currentCityName, true)">Preview Demo</button>
+            </div>
+
+            <!-- Featured Day Hero View -->
+            <section class="hero-forecast-display">
+                <div class="hero-left-col">
+                    <span class="hero-date-tag" id="heroDateTitle">Tomorrow • Featured Outlook</span>
+                    <div class="hero-vibe-pill" id="heroVibePill">
+                        <span>✨</span>
+                        <span id="heroVibeLabel">Pleasant & Clear</span>
+                    </div>
+
+                    <div class="hero-temp-group">
+                        <span class="hero-temp-large" id="heroTempMain">--</span>
+                        <span class="hero-temp-deg-symbol" id="heroTempUnit">°C</span>
+                    </div>
+
+                    <p class="hero-summary-copy" id="heroSummaryCopy">
+                        Loading atmospheric projections and daily climate patterns...
+                    </p>
+                </div>
+
+                <div class="hero-lifestyle-box">
+                    <div class="hero-weather-icon-stage" id="heroIconStage">
+                        <!-- Injected animated SVG -->
+                    </div>
+
+                    <div class="lifestyle-metrics-grid">
+                        <div class="metric-tile">
+                            <span class="metric-tile-label">Rain Chance</span>
+                            <span class="metric-tile-val" id="tileRain">0.0 mm</span>
+                        </div>
+                        <div class="metric-tile">
+                            <span class="metric-tile-label">Fit Guide</span>
+                            <span class="metric-tile-val" id="tileFit">Light Cotton Tee</span>
+                        </div>
+                        <div class="metric-tile">
+                            <span class="metric-tile-label">Chai Index</span>
+                            <span class="metric-tile-val" id="tileChai">10/10 Karak 🫖</span>
+                        </div>
+                        <div class="metric-tile">
+                            <span class="metric-tile-label">Outdoor Vibe</span>
+                            <span class="metric-tile-val" id="tileVibe">Prime Walk 🌿</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forecast Trajectory Chart -->
+            <section class="trend-chart-card">
+                <div class="trend-chart-header">
+                    <div class="trend-chart-title">
+                        <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--accent-main);"></i>
+                        <span>Temperature Trajectory & Rain Volume</span>
+                    </div>
+                    <div class="trend-legends">
+                        <div class="legend-indicator">
+                            <div class="legend-bullet-terracotta"></div>
+                            <span>Temperature (°<span class="current-unit-label">C</span>)</span>
+                        </div>
+                        <div class="legend-indicator">
+                            <div class="legend-bullet-blue"></div>
+                            <span>Rainfall (mm)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svg-canvas-wrapper">
+                    <svg id="forecastSvgChart" viewBox="0 0 900 130" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="warmChartGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#FF6B4A" stop-opacity="0.35"/>
+                                <stop offset="100%" stop-color="#FF6B4A" stop-opacity="0.0"/>
+                            </linearGradient>
+                        </defs>
+                        <g id="chartGuides"></g>
+                        <path id="chartAreaPath" fill="url(#warmChartGrad)"></path>
+                        <path id="chartStrokePath" fill="none" stroke="#FF6B4A" stroke-width="3.5" stroke-linecap="round"></path>
+                        <g id="chartRainColumns"></g>
+                        <g id="chartDots"></g>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- Day Cards Grid -->
+            <section class="days-grid" id="forecastDaysGrid">
+                <!-- Injected dynamically -->
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div>
+                <span>VibeCast Pakistan • Designed with clean, warm aesthetic colors</span>
+            </div>
+            <div>
+                <span>Stay hydrated & enjoy the weather 🇵🇰</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Application Engine Script -->
+    <script>
+        // Preset Pakistani Cities with Cultural & Relatable Vibe Tags
+        const PAKISTANI_CITIES = [
+            { name: "Lahore", emoji: "🍗", vibe: "Biryani & Golden Sun" },
+            { name: "Islamabad", emoji: "🌿", vibe: "Hills & Fresh Rain" },
+            { name: "Karachi", emoji: "🌊", vibe: "Breezy Sea Air" },
+            { name: "Rawalpindi", emoji: "⚡️", vibe: "Evening Tea & Hustle" },
+            { name: "Abbottabad", emoji: "🏔️", vibe: "Pine Mist & Chill" },
+            { name: "Peshawar", emoji: "🫖", vibe: "Qahwa & Cool Nights" },
+            { name: "Quetta", emoji: "🍇", vibe: "Crisp Chilly Breezes" },
+            { name: "Multan", emoji: "☀️", vibe: "Warm & Sunny Days" },
+            { name: "Faisalabad", emoji: "🧵", vibe: "Vibrant City Energy" },
+            { name: "Gujranwala", emoji: "🏋️", vibe: "Hearty Strength" },
+            { name: "Sialkot", emoji: "⚽️", vibe: "Global Craft & Craftsmanship" },
+            { name: "Hyderabad", emoji: "🌬️", vibe: "Gentle Wind Flow" },
+        ];
+
+        // State
+        let activePage = 1;
+        let currentCityName = "{{ default_city }}";
+        let activeUnit = "C";
+        let selectedForecastHorizon = 5;
+        let forecastList = [];
+        let activeCardIdx = 0;
+        let weatherMode = 'clear'; // 'clear', 'rain', 'clouds'
+
+        // Kai's Fun Conversational Lines
+        const KAI_REMARKS = [
+            "Yo! Tap me anytime for a vibe check. ✌️",
+            "Lahore food street later or what? 🍗",
+            "Always check the skies before rocking your fresh sneakers! 👟",
+            "Chai weather in Islamabad is unmatched, no debate. 🫖🌿",
+            "Keep hydrated today fam, weather's on its best behavior! 🥤",
+            "Karachi sea breeze hits different in the evening. 🌊"
+        ];
+        let remarkCounter = 0;
+
+        function interactKai() {
+            remarkCounter = (remarkCounter + 1) % KAI_REMARKS.length;
+            const bubble = document.getElementById("kaiSpeech");
+            const take = document.getElementById("companionTakeText");
+            if (bubble) bubble.innerText = KAI_REMARKS[remarkCounter];
+            if (take) take.innerText = `"${KAI_REMARKS[remarkCounter]}"`;
+
+            // Kai bouncy nod reaction
+            const stage = document.querySelector(".character-stage");
+            if (stage) {
+                stage.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+                stage.style.transform = "scale(1.15) rotate(8deg)";
+                setTimeout(() => {
+                    stage.style.transform = "scale(1) rotate(0deg)";
+                }, 350);
+            }
+        }
+
+        // Page Navigation
+        function navigateTo(page, city = null) {
+            activePage = page;
+            const p1 = document.getElementById("viewLanding");
+            const p2 = document.getElementById("viewDashboard");
+
+            if (page === 1) {
+                p1.classList.add("active");
+                p2.classList.remove("active");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                history.pushState({ page: 1 }, "", "/");
+            } else {
+                p1.classList.remove("active");
+                p2.classList.add("active");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                if (city) {
+                    currentCityName = city;
+                    document.getElementById("activeCityTitle").innerText = city;
+                    loadForecast(city);
+                    history.pushState({ page: 2, city: city }, "", `/?city=${encodeURIComponent(city)}`);
+                }
+            }
+        }
+
+        // Handle Browser History
+        window.addEventListener("popstate", (e) => {
+            if (e.state && e.state.page === 2) {
+                navigateTo(2, e.state.city || currentCityName);
+            } else {
+                navigateTo(1);
+            }
+        });
+
+        // Popular City Tiles on Landing Page
+        function buildCityTiles() {
+            const container = document.getElementById("popularCitiesGrid");
+            container.innerHTML = "";
+
+            PAKISTANI_CITIES.forEach(c => {
+                const tile = document.createElement("div");
+                tile.className = `city-tile ${c.name === currentCityName ? 'selected' : ''}`;
+                tile.onclick = () => {
+                    document.querySelectorAll(".city-tile").forEach(el => el.classList.remove("selected"));
+                    tile.classList.add("selected");
+                    document.getElementById("landingCityInput").value = c.name;
+                    pickCityAndGo(c.name);
+                };
+                tile.innerHTML = `
+                    <div class="city-tile-top">
+                        <span class="city-tile-name">${c.name}</span>
+                        <span class="city-tile-emoji">${c.emoji}</span>
+                    </div>
+                    <span class="city-tile-vibe">${c.vibe}</span>
+                `;
+                container.appendChild(tile);
+            });
+        }
+
+        function pickCityAndGo(cityName) {
+            const bubble = document.getElementById("kaiSpeech");
+            bubble.innerText = `Say less! Checking the skies for ${cityName}... 🚀`;
+            setTimeout(() => {
+                navigateTo(2, cityName);
+            }, 300);
+        }
+
+        function handleCitySelect() {
+            const inputVal = document.getElementById("landingCityInput").value.trim();
+            const chosen = inputVal || currentCityName;
+            pickCityAndGo(chosen);
+        }
+
+        document.getElementById("landingCityInput").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") handleCitySelect();
+        });
+
+        // Day Horizon Picker
+        function setForecastHorizon(days) {
+            selectedForecastHorizon = days;
+            document.querySelectorAll(".horizon-chip").forEach(chip => {
+                chip.classList.toggle("active", parseInt(chip.dataset.days) === days);
+            });
+            loadForecast(currentCityName);
+        }
+
+        // Unit Switcher
+        function changeUnit(unit) {
+            if (activeUnit === unit) return;
+            activeUnit = unit;
+            document.getElementById("pillC").classList.toggle("active", unit === "C");
+            document.getElementById("pillF").classList.toggle("active", unit === "F");
+            document.querySelectorAll(".current-unit-label").forEach(l => l.innerText = unit);
+
+            if (forecastList.length > 0) {
+                renderForecastGrid(forecastList);
+                updateMainHero(activeCardIdx);
+                drawTrajectoryChart(forecastList);
+            }
+        }
+
+        function toF(c) {
+            return (c * 9/5) + 32;
+        }
+
+        function formatTemperature(c) {
+            return activeUnit === "F" ? Math.round(toF(c) * 10) / 10 : c;
+        }
+
+        // Lifestyle & Relatable Weather Logic
+        function computeLifestyleVibe(tempC, precipMm) {
+            if (precipMm >= 3.0) {
+                return {
+                    label: "Rain Showers 🌧️",
+                    mode: "rain",
+                    take: "Heavy rain on the radar! Keep an umbrella handy and stay cozy indoors.",
+                    fit: "Waterproof Shell + Boots",
+                    chai: "10/10 Karak Chai 🫖",
+                    vibe: "Cozy Indoors ☕️"
+                };
+            }
+            if (precipMm > 0.0) {
+                return {
+                    label: "Light Drizzle 🌦️",
+                    mode: "rain",
+                    take: "Fresh sprinkles in the air. Elite hoodie weather — perfect for tea and pakoras.",
+                    fit: "Light Windbreaker",
+                    chai: "9/10 Hot Tea 🫖",
+                    vibe: "Fresh & Breezy 🍃"
+                };
+            }
+            if (tempC >= 32) {
+                return {
+                    label: "Sunny & Warm ☀️",
+                    mode: "clear",
+                    take: "Warm sun outside today! Drink plenty of water and wear light cottons.",
+                    fit: "Linen Shirt + Sunglasses",
+                    chai: "Iced Latte Time 🥤",
+                    vibe: "Shaded Outdoor ⛱️"
+                };
+            }
+            if (tempC >= 23) {
+                return {
+                    label: "Golden & Pleasant ✨",
+                    mode: "clear",
+                    take: "Immaculate weather detected! Best time for an evening stroll or food street run.",
+                    fit: "Oversized Tee + Sneakers",
+                    chai: "8.5/10 Evening Chai ☕️",
+                    vibe: "Peak Rooftop 🌆"
+                };
+            }
+            if (tempC >= 15) {
+                return {
+                    label: "Mild & Crisp 🍂",
+                    mode: "clear",
+                    take: "Comfortably crisp temperature. Great weather for a scenic drive or park walk.",
+                    fit: "Denim Jacket / Cardigan",
+                    chai: "9.5/10 Karak Tea 🫖",
+                    vibe: "Comfortable Walk 👟"
+                };
+            }
+            return {
+                label: "Cool Mountain Air ❄️",
+                mode: "clouds",
+                take: "Chilly weather in effect! Grab a warm sweater and enjoy hot soup tonight.",
+                fit: "Knit Sweater / Fleece",
+                chai: "10/10 Warm Qahwa 🍵",
+                vibe: "Cozy Fireside 🔥"
+            };
+        }
+
+        // Clean Lifestyle SVG Icons
+        function renderLifestyleIcon(mode, size = 52) {
+            if (mode === 'rain') {
+                return `
+                <svg width="${size}" height="${size}" viewBox="0 0 64 64" fill="none">
+                    <path d="M18 36H46C50.4 36 54 32.4 54 28C54 23.6 50.4 20 46 20C45.7 20 45.4 20 45.1 20.1C43.6 14.3 38.3 10 32 10C24.9 10 19 15.3 18.1 22.2C15.2 22.9 13 25.4 13 28.5C13 32.6 16.4 36 18 36Z" fill="#3B9BBF" fill-opacity="0.25" stroke="#3B9BBF" stroke-width="2.5" stroke-linejoin="round"/>
+                    <line x1="24" y1="42" x2="21" y2="52" stroke="#3B9BBF" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="34" y1="42" x2="31" y2="52" stroke="#3B9BBF" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="44" y1="42" x2="41" y2="52" stroke="#3B9BBF" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>`;
+            } else if (mode === 'clouds') {
+                return `
+                <svg width="${size}" height="${size}" viewBox="0 0 64 64" fill="none">
+                    <path d="M20 40H46C50.4 40 54 36.4 54 32C54 27.6 50.4 24 46 24C45.7 24 45.4 24 45.1 24.1C43.6 18.3 38.3 14 32 14C24.9 14 19 19.3 18.1 26.2C15.2 26.9 13 29.4 13 32.5C13 36.6 16.4 40 20 40Z" fill="#F59E0B" fill-opacity="0.2" stroke="#78716C" stroke-width="2.5" stroke-linejoin="round"/>
+                </svg>`;
+            } else {
+                return `
+                <svg width="${size}" height="${size}" viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="13" fill="#F59E0B" fill-opacity="0.25" stroke="#FF6B4A" stroke-width="2.5"/>
+                    <g style="transform-origin: 32px 32px; animation: spin 24s linear infinite;">
+                        <line x1="32" y1="8" x2="32" y2="13" stroke="#FF6B4A" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="32" y1="51" x2="32" y2="56" stroke="#FF6B4A" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="8" y1="32" x2="13" y2="32" stroke="#FF6B4A" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="51" y1="32" x2="56" y2="32" stroke="#FF6B4A" stroke-width="2.5" stroke-linecap="round"/>
+                    </g>
+                </svg>`;
+            }
+        }
+
+        // Fast Smooth Value Counter
+        function rollCounter(el, targetVal, duration = 300) {
+            const start = parseFloat(el.innerText) || 0;
+            const t0 = performance.now();
+            function step(t) {
+                const p = Math.min((t - t0) / duration, 1);
+                const ease = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+                const val = start + (targetVal - start) * ease;
+                el.innerText = val.toFixed(1);
+                if (p < 1) requestAnimationFrame(step);
+                else el.innerText = targetVal.toFixed(1);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Fetch Forecast Data
+        async function loadForecast(cityName, forceDemo = false) {
+            const toast = document.getElementById("errorToast");
+            toast.style.display = "none";
+
+            try {
+                let url = `/api/forecast?days=${selectedForecastHorizon}&city=${encodeURIComponent(cityName)}`;
+                if (forceDemo) url += `&demo=1`;
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.success) {
+                    forecastList = data.forecasts || [];
+                    document.getElementById("activeCityTitle").innerText = data.searched_city;
+                    document.getElementById("activeCityModelBadge").innerText = data.is_demo ? `Demo Preview (${data.model_city})` : `Verified: ${data.model_city}`;
+                    renderForecastGrid(forecastList);
+                    updateMainHero(0);
+                    drawTrajectoryChart(forecastList);
+                } else {
+                    document.getElementById("errorToastText").innerText = data.error || "Could not retrieve weather.";
+                    toast.style.display = "flex";
+                }
+            } catch (err) {
+                document.getElementById("errorToastText").innerText = "Network timeout. Try demo mode for full preview.";
+                toast.style.display = "flex";
+            }
+        }
+
+        // Render Cards
+        function renderForecastGrid(days) {
+            const grid = document.getElementById("forecastDaysGrid");
+            grid.innerHTML = "";
+
+            days.forEach((day, idx) => {
+                const dateObj = new Date(day.date + 'T00:00:00');
+                const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const title = idx === 0 ? "Tomorrow" : daysOfWeek[dateObj.getDay()];
+                const sub = `${months[dateObj.getMonth()]} ${dateObj.getDate()}`;
+
+                const lifestyle = computeLifestyleVibe(day.predicted_mean_temp_c, day.predicted_precipitation_mm);
+                const tDisp = formatTemperature(day.predicted_mean_temp_c);
+
+                const card = document.createElement("div");
+                card.className = `day-forecast-card ${idx === activeCardIdx ? 'active' : ''}`;
+                card.style.animationDelay = `${idx * 60}ms`;
+                card.onclick = () => {
+                    activeCardIdx = idx;
+                    document.querySelectorAll(".day-forecast-card").forEach((c, i) => {
+                        c.classList.toggle("active", i === idx);
+                    });
+                    updateMainHero(idx);
+                    drawTrajectoryChart(forecastList);
+                };
+
+                card.innerHTML = `
+                    <div class="card-header-row">
+                        <div>
+                            <div class="card-day-title">${title}</div>
+                            <div class="card-day-date">${sub}</div>
+                        </div>
+                        <div class="card-icon-container">${renderLifestyleIcon(lifestyle.mode, 34)}</div>
+                    </div>
+                    <div class="card-temp-big">${tDisp}°<span style="font-size: 1rem; color: var(--text-subtle); font-weight: 500;">${activeUnit}</span></div>
+                    <div class="card-rain-tag">
+                        <i data-lucide="droplets" style="width: 13px; height: 13px;"></i>
+                        <span>${day.predicted_precipitation_mm} mm</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Update Main Hero Card
+        function updateMainHero(index) {
+            if (!forecastList[index]) return;
+            const day = forecastList[index];
+            const lifestyle = computeLifestyleVibe(day.predicted_mean_temp_c, day.predicted_precipitation_mm);
+            const dateObj = new Date(day.date + 'T00:00:00');
+            const dayStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+            document.getElementById("heroDateTitle").innerText = index === 0 ? `Tomorrow • ${dayStr}` : `${dayStr} • Day ${index + 1}`;
+            document.getElementById("heroVibeLabel").innerText = lifestyle.label;
+            document.getElementById("heroTempUnit").innerText = `°${activeUnit}`;
+
+            const tDisp = formatTemperature(day.predicted_mean_temp_c);
+            rollCounter(document.getElementById("heroTempMain"), tDisp);
+
+            document.getElementById("heroSummaryCopy").innerText =
+                `Comfortable mean around ${tDisp}°${activeUnit} with ${lifestyle.label.toLowerCase()}. ${lifestyle.take}`;
+
+            document.getElementById("heroIconStage").innerHTML = renderLifestyleIcon(lifestyle.mode, 86);
+            document.getElementById("tileRain").innerText = `${day.predicted_precipitation_mm} mm`;
+            document.getElementById("tileFit").innerText = lifestyle.fit;
+            document.getElementById("tileChai").innerText = lifestyle.chai;
+            document.getElementById("tileVibe").innerText = lifestyle.vibe;
+
+            // Update Kai's Quote
+            document.getElementById("companionTakeText").innerText = `"${lifestyle.take}"`;
+
+            // Adjust ambient background mood
+            setAmbientAtmosphere(lifestyle.mode);
+        }
+
+        // Draw Interactive SVG Trajectory Curve
+        function drawTrajectoryChart(forecasts) {
+            const chartGuides = document.getElementById("chartGuides");
+            const chartStroke = document.getElementById("chartStrokePath");
+            const chartArea = document.getElementById("chartAreaPath");
+            const chartRain = document.getElementById("chartRainColumns");
+            const chartDots = document.getElementById("chartDots");
+
+            chartGuides.innerHTML = '';
+            chartRain.innerHTML = '';
+            chartDots.innerHTML = '';
+
+            if (!forecasts || forecasts.length === 0) return;
+
+            const width = 900;
+            const height = 130;
+            const padX = 45;
+            const padY = 24;
+
+            const temps = forecasts.map(f => formatTemperature(f.predicted_mean_temp_c));
+            const minT = Math.min(...temps) - 2;
+            const maxT = Math.max(...temps) + 2;
+            const rangeT = Math.max(maxT - minT, 1);
+
+            const precips = forecasts.map(f => f.predicted_precipitation_mm);
+            const maxP = Math.max(...precips, 5);
+
+            const count = forecasts.length;
+            const step = count > 1 ? (width - padX * 2) / (count - 1) : 0;
+
+            const points = forecasts.map((f, i) => {
+                const x = count === 1 ? width / 2 : padX + i * step;
+                const t = formatTemperature(f.predicted_mean_temp_c);
+                const y = height - padY - ((t - minT) / rangeT) * (height - padY * 2);
+                return { x, y, t, p: f.predicted_precipitation_mm };
+            });
+
+            // Grid & Rain Columns
+            points.forEach((pt, i) => {
+                if (pt.p > 0) {
+                    const barH = Math.min((pt.p / maxP) * 55, 60);
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    rect.setAttribute("x", pt.x - 14);
+                    rect.setAttribute("y", height - padY - barH);
+                    rect.setAttribute("width", 28);
+                    rect.setAttribute("height", barH);
+                    rect.setAttribute("rx", 6);
+                    rect.setAttribute("fill", "#3B9BBF");
+                    rect.setAttribute("opacity", "0.28");
+                    chartRain.appendChild(rect);
+                }
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", pt.x);
+                line.setAttribute("y1", padY);
+                line.setAttribute("x2", pt.x);
+                line.setAttribute("y2", height - padY);
+                line.setAttribute("stroke", "currentColor");
+                line.setAttribute("stroke-opacity", "0.07");
+                line.setAttribute("stroke-dasharray", "4,4");
+                chartGuides.appendChild(line);
+            });
+
+            // Catmull-Rom / Bézier smoothing
+            let dLine = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i];
+                const p1 = points[i + 1];
+                const midX = (p0.x + p1.x) / 2;
+                dLine += ` C ${midX} ${p0.y}, ${midX} ${p1.y}, ${p1.x} ${p1.y}`;
+            }
+
+            chartStroke.setAttribute("d", dLine);
+            const dArea = `${dLine} L ${points[points.length - 1].x} ${height - padY} L ${points[0].x} ${height - padY} Z`;
+            chartArea.setAttribute("d", dArea);
+
+            // Points
+            points.forEach((pt, i) => {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.style.cursor = "pointer";
+                g.onclick = () => {
+                    activeCardIdx = i;
+                    document.querySelectorAll(".day-forecast-card").forEach((c, idx) => {
+                        c.classList.toggle("active", idx === i);
+                    });
+                    updateMainHero(i);
+                    drawTrajectoryChart(forecasts);
+                };
+
+                const halo = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                halo.setAttribute("cx", pt.x);
+                halo.setAttribute("cy", pt.y);
+                halo.setAttribute("r", 9);
+                halo.setAttribute("fill", "#FF6B4A");
+                halo.setAttribute("fill-opacity", i === activeCardIdx ? "0.35" : "0.1");
+
+                const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                dot.setAttribute("cx", pt.x);
+                dot.setAttribute("cy", pt.y);
+                dot.setAttribute("r", i === activeCardIdx ? 6 : 4);
+                dot.setAttribute("fill", i === activeCardIdx ? "#FF6B4A" : "#F59E0B");
+                dot.setAttribute("stroke", "#FFFFFF");
+                dot.setAttribute("stroke-width", "2");
+
+                const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute("x", pt.x);
+                txt.setAttribute("y", pt.y - 12);
+                txt.setAttribute("text-anchor", "middle");
+                txt.setAttribute("fill", "currentColor");
+                txt.setAttribute("font-size", "11");
+                txt.setAttribute("font-weight", "800");
+                txt.textContent = `${pt.t}°`;
+
+                g.appendChild(halo);
+                g.appendChild(dot);
+                g.appendChild(txt);
+                chartDots.appendChild(g);
+            });
+        }
+
+        // GPS Geolocation
+        function useCurrentGpsLocation() {
+            if (!navigator.geolocation) {
+                alert("Geolocation not supported on this browser.");
+                return;
+            }
+            const btn = document.querySelector(".btn-locate-gps");
+            btn.innerHTML = `<span>Locating...</span>`;
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    btn.innerHTML = `<i data-lucide="crosshair" style="width:14px;height:14px;"></i><span>Found!</span>`;
+                    navigateTo(2);
+
+                    try {
+                        const res = await fetch(`/api/forecast?days=${selectedForecastHorizon}&lat=${lat}&lon=${lon}`);
+                        const data = await res.json();
+                        if (data.success) {
+                            forecastList = data.forecasts || [];
+                            document.getElementById("activeCityTitle").innerText = data.searched_city;
+                            document.getElementById("activeCityModelBadge").innerText = `Station: ${data.model_city}`;
+                            renderForecastGrid(forecastList);
+                            updateMainHero(0);
+                            drawTrajectoryChart(forecastList);
+                        }
+                    } catch(e) {}
+                },
+                () => {
+                    btn.innerHTML = `<i data-lucide="crosshair" style="width:14px;height:14px;"></i><span>Locate</span>`;
+                    alert("Location access denied or unavailable.");
+                }
+            );
+        }
+
+        // Warm Ambient Particles Engine
+        const canvas = document.getElementById("weatherCanvas");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            setupParticles();
+        }
+        window.addEventListener("resize", resizeCanvas);
+
+        class WarmParticle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                if (weatherMode === 'rain') {
+                    this.vx = -1.2 + Math.random() * 0.4;
+                    this.vy = 7 + Math.random() * 5;
+                    this.size = 12 + Math.random() * 8;
+                    this.alpha = 0.2 + Math.random() * 0.25;
+                } else if (weatherMode === 'clouds') {
+                    this.vx = 0.2 + Math.random() * 0.3;
+                    this.vy = (Math.random() - 0.5) * 0.08;
+                    this.size = 60 + Math.random() * 80;
+                    this.alpha = 0.03 + Math.random() * 0.05;
+                } else {
+                    this.vx = (Math.random() - 0.5) * 0.3;
+                    this.vy = -0.2 - Math.random() * 0.3;
+                    this.size = 2 + Math.random() * 2.5;
+                    this.alpha = 0.12 + Math.random() * 0.22;
+                }
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (weatherMode === 'rain') {
+                    if (this.y > canvas.height || this.x < 0) {
+                        this.y = -10;
+                        this.x = Math.random() * (canvas.width + 80);
+                    }
+                } else if (weatherMode === 'clouds') {
+                    if (this.x > canvas.width + 100) this.x = -100;
+                } else {
+                    if (this.y < 0) {
+                        this.y = canvas.height + 10;
+                        this.x = Math.random() * canvas.width;
+                    }
+                }
+            }
+            draw() {
+                ctx.save();
+                if (weatherMode === 'rain') {
+                    ctx.strokeStyle = `rgba(59, 155, 191, ${this.alpha})`;
+                    ctx.lineWidth = 1.3;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.vx * 2, this.y + this.size);
+                    ctx.stroke();
+                } else if (weatherMode === 'clouds') {
+                    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                    grad.addColorStop(0, `rgba(245, 158, 11, ${this.alpha})`);
+                    grad.addColorStop(1, 'transparent');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = `rgba(255, 107, 74, ${this.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        function setupParticles() {
+            particles = [];
+            const count = weatherMode === 'rain' ? 60 : (weatherMode === 'clouds' ? 14 : 35);
+            for (let i = 0; i < count; i++) particles.push(new WarmParticle());
+        }
+
+        function canvasAnimationLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+            requestAnimationFrame(canvasAnimationLoop);
+        }
+
+        function setAmbientAtmosphere(mode) {
+            weatherMode = mode;
+            setupParticles();
+            const aura = document.getElementById("warmAura");
+            if (mode === 'rain') {
+                aura.style.background = 'radial-gradient(circle, rgba(59, 155, 191, 0.18) 0%, transparent 70%)';
+            } else if (mode === 'clouds') {
+                aura.style.background = 'radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%)';
+            } else {
+                aura.style.background = 'radial-gradient(circle, rgba(255, 107, 74, 0.16) 0%, rgba(245, 158, 11, 0.08) 50%, transparent 70%)';
+            }
+        }
+
+        // Theme Switch
+        function toggleAppTheme() {
+            const html = document.documentElement;
+            const cur = html.getAttribute("data-theme") || "light";
+            const next = cur === "light" ? "dark" : "light";
+            html.setAttribute("data-theme", next);
+            localStorage.setItem("vibecast_theme", next);
+            const icon = document.getElementById("themeMoodIcon");
+            if (icon) icon.setAttribute("data-lucide", next === "light" ? "moon" : "sun");
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Init
+        document.addEventListener("DOMContentLoaded", () => {
+            const saved = localStorage.getItem("vibecast_theme") || "light";
+            document.documentElement.setAttribute("data-theme", saved);
+            const icon = document.getElementById("themeMoodIcon");
+            if (icon) icon.setAttribute("data-lucide", saved === "light" ? "moon" : "sun");
+
+            buildCityTiles();
+            resizeCanvas();
+            canvasAnimationLoop();
+
+            const params = new URLSearchParams(window.location.search);
+            const qCity = params.get("city");
+            if (qCity) {
+                navigateTo(2, qCity);
+            }
+
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
